@@ -165,11 +165,26 @@
             </div>
         </div>
     </b-modal>
+
+    <b-modal ref="my-modal-producto-galery-img" hide-footer title="GALERIA IMAGEN PRODUCTO">
+        <div class="d-block text-center">
+            <div>
+                <b-card bg-variant="light">
+                 
+                  <vue-dropzone ref="myVueDropzone" id="dropzone"  v-on:vdropzone-sending="sendingEvent" :options="dropzoneOptions">
+                    
+                  </vue-dropzone>
+                </form> 
+              </b-card>
+            </div>
+        </div>
+    </b-modal>
          
         <div class="col-md-12">
               <div class="card">
                 <div class="card-header d-block">
-                   
+
+
                     <span>
                          <b-button v-b-modal.modal-lg variant="success" id="toggle-btn-create" @click="modalCreateproducto"><i class="ik ik-save"></i> Crear</b-button>  
                     </span>
@@ -205,7 +220,8 @@
                                     <td v-text="producto.price_venta"></td>
                                     <td v-text="producto.date"></td>
                                     <td>
-                                        <b-button variant="info" id="toggle-btn-edit" @click="modaleditproducto(producto)"><i class="ik ik-edit-2"></i></b-button>  
+                                        <b-button variant="info" class="btn btn-success" id="toggle-btn-edit" @click="modalGaleriaproducto(producto)"><i class="ik ik-camera"></i></b-button> 
+                                        <b-button variant="info" id="toggle-btn-edit" @click="modaleditproducto(producto)"><i class="ik ik-edit-2"></i></b-button>   
                                         <button type="button" class="btn btn-danger" @click="deleteproducto(producto,producto.id)"><i class="ik ik-trash-2"></i></button>
 
                                     </td>
@@ -221,9 +237,13 @@
   </div>
 </template>
 <script>
-
+import vue2Dropzone from 'vue2-dropzone'
+import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+  
      export default {
-   
+        components: {
+          vueDropzone: vue2Dropzone
+        },
         data () {
             return {
                 
@@ -241,11 +261,21 @@
                     image:'',
                 },
                  fullPage: false,
-                   
+                   id_producto:null,
                    category_id: null,
                     options: [
                       { },
-                    ]
+                    ],
+                    dropzoneOptions: {
+                        url: '/ubload/galery',
+                        headers: {
+                          "X-CSRF-TOKEN": document.head.querySelector("[name=csrf-token]").content
+                         },
+                         addRemoveLinks: true,
+                         dictDefaultMessage: "<i class='ik ik-save'></i> SUBIR GALERIA DE PRODUCTO",    
+                        
+
+                    }
               
                 
             };
@@ -256,6 +286,10 @@
         },
         methods: {
                 //subir imagen
+                sendingEvent (file, xhr, formData) {
+
+                  formData.append('product_id', this.id_producto);
+                },
 
                 loadImage(e)
                 {
@@ -354,6 +388,12 @@
                     this.Create.image=producto.img;
                     
                     this.$refs['my-modal-producto-edit'].toggle('#toggle-btn-edit')
+
+                },
+                modalGaleriaproducto(producto) {
+                    
+                    this.id_producto=producto.id;
+                    this.$refs['my-modal-producto-galery-img'].toggle('#toggle-btn-edit');
 
                 },
                 deleteproducto: function(producto,id) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Product;
+use App\Image;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str as Str; 
@@ -145,5 +146,20 @@ class ProductController extends Controller
     {
         $data = Product::find($id);
         $data->delete($id);
+    }
+    public function galery(Request $request)
+    {
+       
+        $file = $request->file('file');
+
+         $nombre ='/galeria_producto/'.time()."_".$request->file->getClientOriginalName();
+         Storage::disk('public')->put($nombre,  \File::get($file));
+
+         $data              = new Image;
+         $data->img         = $nombre;
+         $data->product_id  = $request->product_id;
+         $data->save();
+
+       
     }
 }
