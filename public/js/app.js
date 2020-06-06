@@ -2472,6 +2472,27 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2481,6 +2502,7 @@ __webpack_require__.r(__webpack_exports__);
   data: function data() {
     return {
       producto: [],
+      galery: [],
       Create: {
         description: '',
         codigo: '',
@@ -2511,10 +2533,15 @@ __webpack_require__.r(__webpack_exports__);
     this.SelectCategory();
   },
   methods: {
-    //subir imagen
+    //subir imagen drapzone
     sendingEvent: function sendingEvent(file, xhr, formData) {
       formData.append('product_id', this.id_producto);
+      this.SelectGalery();
     },
+    'showSuccess': function showSuccess(file) {
+      this.SelectGalery();
+    },
+    //fin drpazone
     loadImage: function loadImage(e) {
       var file = e.target.files[0];
       this.Create.image = file;
@@ -2600,6 +2627,7 @@ __webpack_require__.r(__webpack_exports__);
     modalGaleriaproducto: function modalGaleriaproducto(producto) {
       this.id_producto = producto.id;
       this.$refs['my-modal-producto-galery-img'].toggle('#toggle-btn-edit');
+      this.SelectGalery();
     },
     deleteproducto: function deleteproducto(producto, id) {
       var me = this;
@@ -2616,6 +2644,20 @@ __webpack_require__.r(__webpack_exports__);
         versions.forEach(function (version) {
           _this4.options.push(version);
         });
+      });
+    },
+    SelectGalery: function SelectGalery() {
+      var _this5 = this;
+
+      axios.get('/list/galery/' + this.id_producto).then(function (response) {
+        _this5.galery = response.data;
+      });
+    },
+    eliminarGaleriaImagen: function eliminarGaleriaImagen(galery) {
+      var _this6 = this;
+
+      axios.get('/list/galery/delete/' + galery.id).then(function (response) {
+        _this6.SelectGalery();
       });
     }
   }
@@ -80362,8 +80404,101 @@ var render = function() {
                       _c("vue-dropzone", {
                         ref: "myVueDropzone",
                         attrs: { id: "dropzone", options: _vm.dropzoneOptions },
-                        on: { "vdropzone-sending": _vm.sendingEvent }
-                      })
+                        on: {
+                          "vdropzone-sending": _vm.sendingEvent,
+                          "vdropzone-success": _vm.showSuccess
+                        }
+                      }),
+                      _vm._v(" "),
+                      _c(
+                        "div",
+                        { staticClass: "card-body p-1 table-border-style" },
+                        [
+                          _c(
+                            "div",
+                            { staticClass: "table-responsive" },
+                            [
+                              _c(
+                                "b-card",
+                                {
+                                  attrs: {
+                                    "bg-variant": "dark",
+                                    "text-variant": "white",
+                                    title: "GALERIA"
+                                  }
+                                },
+                                [
+                                  _c(
+                                    "table",
+                                    { staticClass: "table table-hover" },
+                                    [
+                                      _c(
+                                        "tbody",
+                                        _vm._l(_vm.galery, function(galery) {
+                                          return _c("tr", { key: galery.id }, [
+                                            _c(
+                                              "th",
+                                              { attrs: { scope: "row" } },
+                                              [
+                                                _c("b-img", {
+                                                  staticStyle: {
+                                                    height: "50px",
+                                                    width: "100px"
+                                                  },
+                                                  attrs: {
+                                                    thumbnail: "",
+                                                    fluid: "",
+                                                    src: galery.img,
+                                                    alt: "Image 1"
+                                                  }
+                                                })
+                                              ],
+                                              1
+                                            ),
+                                            _vm._v(" "),
+                                            _c(
+                                              "td",
+                                              [
+                                                _c(
+                                                  "b-button",
+                                                  {
+                                                    staticClass:
+                                                      "btn btn-danger",
+                                                    attrs: {
+                                                      variant: "info",
+                                                      id: "toggle-btn-edit"
+                                                    },
+                                                    on: {
+                                                      click: function($event) {
+                                                        return _vm.eliminarGaleriaImagen(
+                                                          galery
+                                                        )
+                                                      }
+                                                    }
+                                                  },
+                                                  [
+                                                    _c("i", {
+                                                      staticClass:
+                                                        "ik ik-x-circle"
+                                                    })
+                                                  ]
+                                                )
+                                              ],
+                                              1
+                                            )
+                                          ])
+                                        }),
+                                        0
+                                      )
+                                    ]
+                                  )
+                                ]
+                              )
+                            ],
+                            1
+                          )
+                        ]
+                      )
                     ],
                     1
                   )

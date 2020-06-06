@@ -171,10 +171,31 @@
             <div>
                 <b-card bg-variant="light">
                  
-                  <vue-dropzone ref="myVueDropzone" id="dropzone"  v-on:vdropzone-sending="sendingEvent" :options="dropzoneOptions">
-                    
+                  <vue-dropzone ref="myVueDropzone" id="dropzone"  v-on:vdropzone-sending="sendingEvent" :options="dropzoneOptions" v-on:vdropzone-success="showSuccess">
                   </vue-dropzone>
-                </form> 
+
+                <div class="card-body p-1 table-border-style">
+                    <div class="table-responsive">
+                      <b-card bg-variant="dark" text-variant="white" title="GALERIA">
+                          <table class="table table-hover">
+                              <tbody>
+                                  <tr v-for="galery in galery" :key="galery.id">
+                                      <th scope="row">
+                                         <b-img thumbnail fluid :src=galery.img alt="Image 1" style="height: 50px;width: 100px;" ></b-img>
+                                      </th>
+                                      
+                                      <td>
+                                          <b-button variant="info" class="btn btn-danger" id="toggle-btn-edit" @click="eliminarGaleriaImagen(galery)">
+                                            <i class="ik ik-x-circle"></i></b-button> 
+                                          
+
+                                      </td>
+                                  </tr>
+                              </tbody>
+                          </table>
+                       </b-card>
+                    </div>
+                </div>
               </b-card>
             </div>
         </div>
@@ -248,6 +269,7 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
             return {
                 
                 producto:[],
+                galery:[],
                 Create:
                 {
                     description:'',
@@ -285,12 +307,16 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
             this.SelectCategory();
         },
         methods: {
-                //subir imagen
+                //subir imagen drapzone
                 sendingEvent (file, xhr, formData) {
 
                   formData.append('product_id', this.id_producto);
+                   this.SelectGalery();
                 },
-
+              'showSuccess': function (file) {
+                 this.SelectGalery();
+                },
+                //fin drpazone
                 loadImage(e)
                 {
                     let file=e.target.files[0];
@@ -394,6 +420,7 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                     
                     this.id_producto=producto.id;
                     this.$refs['my-modal-producto-galery-img'].toggle('#toggle-btn-edit');
+                    this.SelectGalery();
 
                 },
                 deleteproducto: function(producto,id) {
@@ -419,6 +446,28 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                            
                     });
                 },
+
+                SelectGalery:function()
+                {
+                  
+                  axios.get('/list/galery/'+this.id_producto).then(response => {
+                     
+                         this.galery= response.data;
+                        
+                           
+                    });
+                },
+
+                eliminarGaleriaImagen: function (galery) {
+                   
+                    axios.get('/list/galery/delete/'+galery.id).then(response => 
+                        {   
+                            
+                              this.SelectGalery();
+                                
+                        });
+                },
+               
 
 
 

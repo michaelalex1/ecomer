@@ -160,6 +160,24 @@ class ProductController extends Controller
          $data->product_id  = $request->product_id;
          $data->save();
 
-       
+
     }
+    public function galeryListar($id)
+    {
+       
+        $data=Image::where('product_id','=', $id)->orderBy('id', 'desc')->get();
+
+        return response()->json($data);
+
+    }
+
+    public function galeryListarDelete($id)
+    {
+        $data = Image::find($id);
+        $data->delete($id);
+
+    }
+
+    
+    
 }

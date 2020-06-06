@@ -37,4 +37,7 @@ Route::post('product/create', 'ProductController@store');
 Route::post('product/update', 'ProductController@update');
 Route::get('/product/remove/{id?}', 'ProductController@destroy');
 Route::post('/ubload/galery','ProductController@galery');
+Route::get('/list/galery/{id?}','ProductController@galeryListar');
+Route::get('/list/galery/delete/{id?}','ProductController@galeryListarDelete');
+
 
