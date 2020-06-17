@@ -20,7 +20,7 @@ class ProductController extends Controller
         
         if($request->ajax()){
             
-            $data=Product::select('categories.name','products.img','products.id','products.description','products.codigo','products.stock','products.price_compra','products.price_venta','products.date','products.category_id')
+            $data=Product::select('categories.name','products.img','products.id','categories.id as category_id','products.description','products.codigo','products.stock','products.price_compra','products.price_venta','products.date','categories.parent_id')
                 ->join('categories', 'products.category_id', '=', 'categories.id')
                 ->orderBy('id', 'desc')->get();
 
@@ -64,7 +64,7 @@ class ProductController extends Controller
          $data->price_compra= $request->price_compra;
          $data->price_venta = $request->price_venta;
          $data->date        = $request->date;
-         $data->category_id = $request->category_id;
+         $data->category_id = $request->parent_id;
          $data->img = $nombre;
          $data->save();
 
@@ -116,7 +116,7 @@ class ProductController extends Controller
              $data->price_compra= $request->price_compra;
              $data->price_venta = $request->price_venta;
              $data->date        = $request->date;
-             $data->category_id = $request->category_id;
+             $data->category_id = $request->parent_id;
              $data->img = $nombre;
              $data->save();
 
@@ -129,7 +129,7 @@ class ProductController extends Controller
              $data->price_compra= $request->price_compra;
              $data->price_venta = $request->price_venta;
              $data->date        = $request->date;
-             $data->category_id = $request->category_id;
+             $data->category_id = $request->parent_id;
              $data->save(); 
         }
 

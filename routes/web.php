@@ -30,6 +30,8 @@ Route::post('category/creare', 'CategoryController@store');
 Route::post('category/update', 'CategoryController@update');
 Route::get('/category/remove/{id?}', 'CategoryController@destroy');
 Route::get('/category/list_category', 'CategoryController@list_category');
+Route::get('/category/list_category/sub/{id?}', 'CategoryController@list_category_sub');
+
 
 //admin vue product
 Route::get('product/list', 'ProductController@index');
@@ -39,5 +41,6 @@ Route::get('/product/remove/{id?}', 'ProductController@destroy');
 Route::post('/ubload/galery','ProductController@galery');
 Route::get('/list/galery/{id?}','ProductController@galeryListar');
 Route::get('/list/galery/delete/{id?}','ProductController@galeryListarDelete');
+
 
 

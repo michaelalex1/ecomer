@@ -59,7 +59,8 @@
                     label-align-sm="right"
                     label-for="nested-country"
                   >
-                    <b-form-datepicker v-model="Create.date"  class="mb-2"></b-form-datepicker>
+                  <input type="date" v-model="Create.date" class="form-control">
+                
                   </b-form-group>
 
                     <b-form-group
@@ -68,12 +69,23 @@
                     label-align-sm="right"
                     label-for="nested-country"
                   >
-                     <b-form-select v-model="Create.category_id" :options="options"></b-form-select>
+                  <b-form-select v-model="Create.category_id" :options="options"  v-on:change="addparentHijo(Create.category_id)"></b-form-select>
                   </b-form-group>
+
+                  <b-form-group
+                    label-cols-sm="2"
+                    label="Sub Categoria:"
+                    label-align-sm="right"
+                    label-for="nested-country"
+                  >
+                  <b-form-select v-model="Create.parent_id" :options="options1"></b-form-select>
+                  </b-form-group>
+
+                   <b-form-group>
                          <input type="file" class="form-control" @change="loadImage">
                   </b-form-group>
                     
-              
+
 
                   <button style="margin-left: 15px;" type="submit" class="btn btn-primary mr-2">Guardar</button>
                 </form> 
@@ -138,7 +150,7 @@
                     label-align-sm="right"
                     label-for="nested-country"
                   >
-                    <b-form-datepicker v-model="Create.date"  class="mb-2"></b-form-datepicker>
+                  <input type="date" v-model="Create.date" class="form-control">
                   </b-form-group>
 
                     <b-form-group
@@ -147,7 +159,15 @@
                     label-align-sm="right"
                     label-for="nested-country"
                   >
-                     <b-form-select v-model="Create.category_id" :options="options"></b-form-select>
+                     <b-form-select v-model="Create.category_id" :options="options" v-on:change="addparentHijo(Create.category_id)"></b-form-select>
+                  </b-form-group>
+                  <b-form-group
+                    label-cols-sm="2"
+                    label="Sub Categoria:"
+                    label-align-sm="right"
+                    label-for="nested-country"
+                  >
+                  <b-form-select v-model="Create.parent_id" :options="options1" ></b-form-select>
                   </b-form-group>
          
                   </b-form-group>
@@ -173,7 +193,7 @@
                  
                   <vue-dropzone ref="myVueDropzone" id="dropzone"  v-on:vdropzone-sending="sendingEvent" :options="dropzoneOptions" v-on:vdropzone-success="showSuccess">
                   </vue-dropzone>
-
+                     
                 <div class="card-body p-1 table-border-style">
                     <div class="table-responsive">
                       <b-card bg-variant="dark" text-variant="white" title="GALERIA">
@@ -258,9 +278,11 @@
   </div>
 </template>
 <script>
+
+
 import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
-  
+
      export default {
         components: {
           vueDropzone: vue2Dropzone
@@ -279,6 +301,7 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                     price_venta:'',
                     date:'',
                     category_id:'',
+                    parent_id:'',
                     id:'',
                     image:'',
                 },
@@ -286,6 +309,9 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                    id_producto:null,
                    category_id: null,
                     options: [
+                      { },
+                    ],
+                    options1: [
                       { },
                     ],
                     dropzoneOptions: {
@@ -351,9 +377,9 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                    formData.append('price_compra',this.Create.price_compra);
                    formData.append('price_venta',this.Create.price_venta);
                    formData.append('date',this.Create.date);
-                   formData.append('category_id',this.Create.category_id);
+                   formData.append('parent_id',this.Create.parent_id);
                    formData.append('img',this.Create.image);
-                   console.log(formData);
+
                   axios.post('/product/create', formData)
                     .then((res) =>{
                        this.listproducto();
@@ -380,12 +406,13 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                    formData.append('price_compra',this.Create.price_compra);
                    formData.append('price_venta',this.Create.price_venta);
                    formData.append('date',this.Create.date);
-                   formData.append('category_id',this.Create.category_id);
+                   formData.append('parent_id',this.Create.parent_id);
                    formData.append('img',this.Create.image);
                    formData.append('id',this.Create.id);
 
                     axios.post('/product/update',formData)
                     .then((res) =>{
+                        
                        this.listproducto();
                        
                        
@@ -402,17 +429,22 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                 },
                 modaleditproducto(producto) {
                     
-                    console.log(producto.category_id);
+
                     this.Create.description=producto.description;
                     this.Create.codigo=producto.codigo;
                     this.Create.stock=producto.stock;
                     this.Create.price_compra=producto.price_compra;
                     this.Create.price_venta=producto.price_venta;
                     this.Create.date=producto.date;
-                    this.Create.category_id=producto.category_id;
+                    this.Create.category_id=producto.parent_id;
                     this.Create.id=producto.id;
                     this.Create.image=producto.img;
                     
+                    this.addparentHijo(producto.parent_id);
+
+                    this.Create.parent_id=producto.category_id;
+                    
+
                     this.$refs['my-modal-producto-edit'].toggle('#toggle-btn-edit')
 
                 },
@@ -458,11 +490,29 @@ import 'vue2-dropzone/dist/vue2Dropzone.min.css'
                     });
                 },
 
+                addparentHijo:function(id)
+                {
+                 this.options1=[];
+                  axios.get('/category/list_category/sub/'+ id).then(response => {
+                     
+                            
+
+                            const versions = response.data;
+                            
+                            versions.forEach((version) => {
+                              this.options1.push(version);
+                            });  
+                        
+                           
+                    });
+                },
+
                 eliminarGaleriaImagen: function (galery) {
                    
                     axios.get('/list/galery/delete/'+galery.id).then(response => 
                         {   
                             
+
                               this.SelectGalery();
                                 
                         });

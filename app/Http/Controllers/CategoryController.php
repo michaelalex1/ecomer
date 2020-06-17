@@ -20,10 +20,27 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         
-        if($request->ajax()){
+        
+        
+
+        if($request->ajax())
+        {
             
-            $data=Category::orderBy('id', 'desc')->get();
-            return response()->json($data);
+             $data=Category::orderBy('id', 'desc')
+                        ->where('parent_id', '0')
+                        ->get();
+
+         $category = array();
+
+         foreach ($data as $registro) {
+                $hijo=Category::orderBy('id', 'desc')
+                        ->where('parent_id', $registro['id'])
+                        ->get();
+               $category[] = array('id'=>$registro['id'],'name'=>$registro['name'],'description'=>$registro['description'],'hijo'=>$hijo) ;        
+          }
+    
+    
+        return response()->json($category);
 
         }else{
             return view('home');
@@ -33,13 +50,34 @@ class CategoryController extends Controller
 
      public function list_category()
    {
-        $data=DB::table('categories')      
-                    ->select('categories.id as value', 'categories.name as text')
-                    ->get();
+        
+         $data=Category::orderBy('id', 'desc')
+                        ->where('parent_id', '0')
+                        ->get();
+
+         $category = array();
+
+         foreach ($data as $registro) {
+
+                $hijo=DB::table('categories')      
+                        ->select('categories.id as value', 'categories.name as text')
+                        ->orderBy('id', 'desc')
+                        ->where('parent_id', $registro['id'])
+                        ->get();
+
+               $category[] = array('value'=>$registro['id'],'text'=>$registro['name'],'hijo'=>$hijo) ;        
+          }
+    
+    
+        return response()->json($category);
+
+        // $data=DB::table('categories')      
+        //             ->select('categories.id as value', 'categories.name as text')
+        //             ->get();
 
 
                   
-         return response()->json($data);
+         //return response()->json($data);
    }
 
 
@@ -64,7 +102,7 @@ class CategoryController extends Controller
          $data              = new Category;
          $data->name        = $request->name;
          $data->description = $request->description;
-         $data->parent_id= $request->category_id;
+         $data->parent_id= $request->parent_id;
          $data->save();
 
 
@@ -105,6 +143,8 @@ class CategoryController extends Controller
         $data->name        =$request->name;
         $data->description =$request->description;
         $data->save();
+
+        return response()->json($data);
     }
 
     /**
@@ -118,4 +158,20 @@ class CategoryController extends Controller
         $data = Category::find($id);
         $data->delete($id);
     }
+
+    public function list_category_sub($id)
+    {
+
+       $data=DB::table('categories')      
+                        ->select('categories.id as value', 'categories.name as text')
+                        ->orderBy('id', 'desc')
+                        ->where('parent_id', $id)
+                        ->get();
+
+        return response()->json($data);
+
+    }
+
+
+
 }

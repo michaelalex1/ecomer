@@ -2131,6 +2131,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2142,14 +2168,11 @@ __webpack_require__.r(__webpack_exports__);
         id: '',
         parent_id: ''
       },
-      fullPage: false,
-      category_id: null,
-      options: [{}]
+      fullPage: false
     };
   },
   mounted: function mounted() {
     this.listCategory();
-    this.SelectCategory();
   },
   methods: {
     listCategory: function listCategory() {
@@ -2172,50 +2195,51 @@ __webpack_require__.r(__webpack_exports__);
       var _this2 = this;
 
       axios.post('/category/creare', this.Create).then(function (res) {
-        _this2.listCategory();
-
         _this2.Create.name = '';
         _this2.Create.description = '';
       })["catch"](function (error) {});
+      this.category = '';
+      this.listCategory();
     },
     update: function update() {
       var _this3 = this;
 
+      var me = this;
       axios.post('/category/update', this.Create).then(function (res) {
-        _this3.listCategory();
+        _this3.category = '';
+        me.listCategory();
       })["catch"](function (error) {});
       this.$root.$emit('bv::hide::modal', 'my-modal-category-edit');
     },
-    modalCreateCategory: function modalCreateCategory() {
+    modalCreateCategory: function modalCreateCategory(parent_id) {
       this.Create.name = '';
       this.Create.description = '';
+      this.Create.parent_id = parent_id;
       this.$refs['my-modal-category'].toggle('#toggle-btn-create');
     },
     modaleditCategory: function modaleditCategory(category) {
       this.Create.name = category.name;
       this.Create.description = category.description;
       this.Create.id = category.id;
-      this.Create.parent_id = category.parent_id;
-      console.log(this.parent_id);
       this.$refs['my-modal-category-edit'].toggle('#toggle-btn-edit');
     },
     deleteCategory: function deleteCategory(category, id) {
       var me = this;
       axios.get('/category/remove/' + category.id).then(function (response) {
+        me.category = '';
         me.listCategory();
       });
-    },
-    SelectCategory: function SelectCategory() {
-      var _this4 = this;
+    } // SelectCategory:function()
+    // {
+    //   this.options=[];
+    //   axios.get('/category/list_category').then(response => {
+    //         const versions = response.data;
+    //         versions.forEach((version) => {
+    //           this.options.push(version);
+    //             });   
+    //     });
+    // },
 
-      this.options = [];
-      axios.get('/category/list_category').then(function (response) {
-        var versions = response.data;
-        versions.forEach(function (version) {
-          _this4.options.push(version);
-        });
-      });
-    }
   }
 });
 
@@ -2493,6 +2517,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2511,6 +2555,7 @@ __webpack_require__.r(__webpack_exports__);
         price_venta: '',
         date: '',
         category_id: '',
+        parent_id: '',
         id: '',
         image: ''
       },
@@ -2518,6 +2563,7 @@ __webpack_require__.r(__webpack_exports__);
       id_producto: null,
       category_id: null,
       options: [{}],
+      options1: [{}],
       dropzoneOptions: {
         url: '/ubload/galery',
         headers: {
@@ -2573,9 +2619,8 @@ __webpack_require__.r(__webpack_exports__);
       formData.append('price_compra', this.Create.price_compra);
       formData.append('price_venta', this.Create.price_venta);
       formData.append('date', this.Create.date);
-      formData.append('category_id', this.Create.category_id);
+      formData.append('parent_id', this.Create.parent_id);
       formData.append('img', this.Create.image);
-      console.log(formData);
       axios.post('/product/create', formData).then(function (res) {
         _this2.listproducto();
 
@@ -2598,7 +2643,7 @@ __webpack_require__.r(__webpack_exports__);
       formData.append('price_compra', this.Create.price_compra);
       formData.append('price_venta', this.Create.price_venta);
       formData.append('date', this.Create.date);
-      formData.append('category_id', this.Create.category_id);
+      formData.append('parent_id', this.Create.parent_id);
       formData.append('img', this.Create.image);
       formData.append('id', this.Create.id);
       axios.post('/product/update', formData).then(function (res) {
@@ -2612,16 +2657,17 @@ __webpack_require__.r(__webpack_exports__);
       this.$refs['my-modal-producto'].toggle('#toggle-btn-create');
     },
     modaleditproducto: function modaleditproducto(producto) {
-      console.log(producto.category_id);
       this.Create.description = producto.description;
       this.Create.codigo = producto.codigo;
       this.Create.stock = producto.stock;
       this.Create.price_compra = producto.price_compra;
       this.Create.price_venta = producto.price_venta;
       this.Create.date = producto.date;
-      this.Create.category_id = producto.category_id;
+      this.Create.category_id = producto.parent_id;
       this.Create.id = producto.id;
       this.Create.image = producto.img;
+      this.addparentHijo(producto.parent_id);
+      this.Create.parent_id = producto.category_id;
       this.$refs['my-modal-producto-edit'].toggle('#toggle-btn-edit');
     },
     modalGaleriaproducto: function modalGaleriaproducto(producto) {
@@ -2653,11 +2699,22 @@ __webpack_require__.r(__webpack_exports__);
         _this5.galery = response.data;
       });
     },
-    eliminarGaleriaImagen: function eliminarGaleriaImagen(galery) {
+    addparentHijo: function addparentHijo(id) {
       var _this6 = this;
 
+      this.options1 = [];
+      axios.get('/category/list_category/sub/' + id).then(function (response) {
+        var versions = response.data;
+        versions.forEach(function (version) {
+          _this6.options1.push(version);
+        });
+      });
+    },
+    eliminarGaleriaImagen: function eliminarGaleriaImagen(galery) {
+      var _this7 = this;
+
       axios.get('/list/galery/delete/' + galery.id).then(function (response) {
-        _this6.SelectGalery();
+        _this7.SelectGalery();
       });
     }
   }
@@ -79506,7 +79563,7 @@ var render = function() {
             "b-modal",
             {
               ref: "my-modal-category",
-              attrs: { "hide-footer": "", title: "CREAR CATEGORÍAi" }
+              attrs: { "hide-footer": "", title: "CREAR CATEGORÍA" }
             },
             [
               _c(
@@ -79528,38 +79585,6 @@ var render = function() {
                       },
                       [
                         _c("div", { staticClass: "row" }, [
-                          _c(
-                            "div",
-                            { staticClass: "col-md-12" },
-                            [
-                              _c(
-                                "b-form-group",
-                                {
-                                  attrs: {
-                                    "label-cols-sm": "2",
-                                    label: "Categoria:",
-                                    "label-align-sm": "right",
-                                    "label-for": "nested-country"
-                                  }
-                                },
-                                [
-                                  _c("b-form-select", {
-                                    attrs: { options: _vm.options },
-                                    model: {
-                                      value: _vm.Create.category_id,
-                                      callback: function($$v) {
-                                        _vm.$set(_vm.Create, "category_id", $$v)
-                                      },
-                                      expression: "Create.category_id"
-                                    }
-                                  })
-                                ],
-                                1
-                              )
-                            ],
-                            1
-                          ),
-                          _vm._v(" "),
                           _c("div", { staticClass: "col-md-12" }, [
                             _c("div", { staticClass: "form-group" }, [
                               _c(
@@ -79670,44 +79695,12 @@ var render = function() {
                 on: {
                   submit: function($event) {
                     $event.preventDefault()
-                    return _vm.create($event)
+                    return _vm.update($event)
                   }
                 }
               },
               [
                 _c("div", { staticClass: "row" }, [
-                  _c(
-                    "div",
-                    { staticClass: "col-md-12" },
-                    [
-                      _c(
-                        "b-form-group",
-                        {
-                          attrs: {
-                            "label-cols-sm": "2",
-                            label: "Categoria:",
-                            "label-align-sm": "right",
-                            "label-for": "nested-country"
-                          }
-                        },
-                        [
-                          _c("b-form-select", {
-                            attrs: { options: _vm.options },
-                            model: {
-                              value: _vm.Create.parent_id,
-                              callback: function($$v) {
-                                _vm.$set(_vm.Create, "parent_id", $$v)
-                              },
-                              expression: "Create.parent_id"
-                            }
-                          })
-                        ],
-                        1
-                      )
-                    ],
-                    1
-                  ),
-                  _vm._v(" "),
                   _c("div", { staticClass: "col-md-12" }, [
                     _c("div", { staticClass: "form-group" }, [
                       _c("label", { attrs: { for: "exampleInputUsername1" } }, [
@@ -79798,9 +79791,13 @@ var render = function() {
                   "b-button",
                   {
                     attrs: { variant: "success", id: "toggle-btn-create" },
-                    on: { click: _vm.modalCreateCategory }
+                    on: {
+                      click: function($event) {
+                        return _vm.modalCreateCategory("0")
+                      }
+                    }
                   },
-                  [_c("i", { staticClass: "ik ik-save" }), _vm._v(" Crear")]
+                  [_c("i", { staticClass: "ik ik-save" }), _vm._v(" CREAR")]
                 )
               ],
               1
@@ -79816,9 +79813,94 @@ var render = function() {
                   "tbody",
                   _vm._l(_vm.category, function(category) {
                     return _c("tr", { key: category.id }, [
-                      _c("td", {
-                        domProps: { textContent: _vm._s(category.name) }
-                      }),
+                      _c(
+                        "td",
+                        [
+                          _vm._v(
+                            "\n                                         " +
+                              _vm._s(category.name) +
+                              " \n                                           \n                                         \n                                          "
+                          ),
+                          _vm._m(1, true),
+                          _vm._v(" "),
+                          _vm._l(category.hijo, function(item) {
+                            return _c(
+                              "span",
+                              [
+                                _c("b-list-group", [
+                                  _c(
+                                    "td",
+                                    [
+                                      _c(
+                                        "b-list-group-item",
+                                        [
+                                          _vm._v(
+                                            " \n                                                          " +
+                                              _vm._s(item.name) +
+                                              "  | " +
+                                              _vm._s(item.description) +
+                                              "\n                                                          "
+                                          ),
+                                          _c(
+                                            "b-button",
+                                            {
+                                              attrs: {
+                                                size: "sm",
+                                                variant: "info",
+                                                id: "toggle-btn-edit"
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  return _vm.modaleditCategory(
+                                                    item
+                                                  )
+                                                }
+                                              }
+                                            },
+                                            [
+                                              _c("i", {
+                                                staticClass: "ik ik-edit-2"
+                                              })
+                                            ]
+                                          ),
+                                          _vm._v(" "),
+                                          _c(
+                                            "button",
+                                            {
+                                              staticClass: "btn btn-danger",
+                                              attrs: {
+                                                size: "sm",
+                                                type: "button"
+                                              },
+                                              on: {
+                                                click: function($event) {
+                                                  return _vm.deleteCategory(
+                                                    item,
+                                                    item.id
+                                                  )
+                                                }
+                                              }
+                                            },
+                                            [
+                                              _c("i", {
+                                                staticClass: "ik ik-trash-2"
+                                              })
+                                            ]
+                                          )
+                                        ],
+                                        1
+                                      )
+                                    ],
+                                    1
+                                  )
+                                ])
+                              ],
+                              1
+                            )
+                          })
+                        ],
+                        2
+                      ),
                       _vm._v(" "),
                       _c("td", {
                         domProps: { textContent: _vm._s(category.description) }
@@ -79855,6 +79937,27 @@ var render = function() {
                               }
                             },
                             [_c("i", { staticClass: "ik ik-trash-2" })]
+                          ),
+                          _vm._v(" "),
+                          _c(
+                            "b-button",
+                            {
+                              attrs: {
+                                variant: "success",
+                                id: "toggle-btn-create"
+                              },
+                              on: {
+                                click: function($event) {
+                                  return _vm.modalCreateCategory(category.id)
+                                }
+                              }
+                            },
+                            [
+                              _c("i", { staticClass: "ik ik-save" }),
+                              _vm._v(
+                                " CREAR\n                                                         "
+                              )
+                            ]
                           )
                         ],
                         1
@@ -79885,6 +79988,24 @@ var staticRenderFns = [
         _vm._v(" "),
         _c("th", [_vm._v("Acción")])
       ])
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("tr", [
+      _c("th", [_vm._v("Nombre")]),
+      _vm._v(" "),
+      _c("th"),
+      _vm._v(" "),
+      _c("th"),
+      _vm._v(" "),
+      _c("th"),
+      _vm._v(" "),
+      _c("th", [_vm._v("Descripción")]),
+      _vm._v(" "),
+      _c("th", [_vm._v("Acciones")])
     ])
   }
 ]
@@ -80073,18 +80194,32 @@ var render = function() {
                             }
                           },
                           [
-                            _c("b-form-datepicker", {
-                              staticClass: "mb-2",
-                              model: {
-                                value: _vm.Create.date,
-                                callback: function($$v) {
-                                  _vm.$set(_vm.Create, "date", $$v)
-                                },
-                                expression: "Create.date"
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.Create.date,
+                                  expression: "Create.date"
+                                }
+                              ],
+                              staticClass: "form-control",
+                              attrs: { type: "date" },
+                              domProps: { value: _vm.Create.date },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.$set(
+                                    _vm.Create,
+                                    "date",
+                                    $event.target.value
+                                  )
+                                }
                               }
                             })
-                          ],
-                          1
+                          ]
                         ),
                         _vm._v(" "),
                         _c(
@@ -80100,6 +80235,13 @@ var render = function() {
                           [
                             _c("b-form-select", {
                               attrs: { options: _vm.options },
+                              on: {
+                                change: function($event) {
+                                  return _vm.addparentHijo(
+                                    _vm.Create.category_id
+                                  )
+                                }
+                              },
                               model: {
                                 value: _vm.Create.category_id,
                                 callback: function($$v) {
@@ -80112,11 +80254,38 @@ var render = function() {
                           1
                         ),
                         _vm._v(" "),
-                        _c("input", {
-                          staticClass: "form-control",
-                          attrs: { type: "file" },
-                          on: { change: _vm.loadImage }
-                        }),
+                        _c(
+                          "b-form-group",
+                          {
+                            attrs: {
+                              "label-cols-sm": "2",
+                              label: "Sub Categoria:",
+                              "label-align-sm": "right",
+                              "label-for": "nested-country"
+                            }
+                          },
+                          [
+                            _c("b-form-select", {
+                              attrs: { options: _vm.options1 },
+                              model: {
+                                value: _vm.Create.parent_id,
+                                callback: function($$v) {
+                                  _vm.$set(_vm.Create, "parent_id", $$v)
+                                },
+                                expression: "Create.parent_id"
+                              }
+                            })
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c("b-form-group", [
+                          _c("input", {
+                            staticClass: "form-control",
+                            attrs: { type: "file" },
+                            on: { change: _vm.loadImage }
+                          })
+                        ]),
                         _vm._v(" "),
                         _c(
                           "button",
@@ -80297,18 +80466,32 @@ var render = function() {
                             }
                           },
                           [
-                            _c("b-form-datepicker", {
-                              staticClass: "mb-2",
-                              model: {
-                                value: _vm.Create.date,
-                                callback: function($$v) {
-                                  _vm.$set(_vm.Create, "date", $$v)
-                                },
-                                expression: "Create.date"
+                            _c("input", {
+                              directives: [
+                                {
+                                  name: "model",
+                                  rawName: "v-model",
+                                  value: _vm.Create.date,
+                                  expression: "Create.date"
+                                }
+                              ],
+                              staticClass: "form-control",
+                              attrs: { type: "date" },
+                              domProps: { value: _vm.Create.date },
+                              on: {
+                                input: function($event) {
+                                  if ($event.target.composing) {
+                                    return
+                                  }
+                                  _vm.$set(
+                                    _vm.Create,
+                                    "date",
+                                    $event.target.value
+                                  )
+                                }
                               }
                             })
-                          ],
-                          1
+                          ]
                         ),
                         _vm._v(" "),
                         _c(
@@ -80324,12 +80507,44 @@ var render = function() {
                           [
                             _c("b-form-select", {
                               attrs: { options: _vm.options },
+                              on: {
+                                change: function($event) {
+                                  return _vm.addparentHijo(
+                                    _vm.Create.category_id
+                                  )
+                                }
+                              },
                               model: {
                                 value: _vm.Create.category_id,
                                 callback: function($$v) {
                                   _vm.$set(_vm.Create, "category_id", $$v)
                                 },
                                 expression: "Create.category_id"
+                              }
+                            })
+                          ],
+                          1
+                        ),
+                        _vm._v(" "),
+                        _c(
+                          "b-form-group",
+                          {
+                            attrs: {
+                              "label-cols-sm": "2",
+                              label: "Sub Categoria:",
+                              "label-align-sm": "right",
+                              "label-for": "nested-country"
+                            }
+                          },
+                          [
+                            _c("b-form-select", {
+                              attrs: { options: _vm.options1 },
+                              model: {
+                                value: _vm.Create.parent_id,
+                                callback: function($$v) {
+                                  _vm.$set(_vm.Create, "parent_id", $$v)
+                                },
+                                expression: "Create.parent_id"
                               }
                             })
                           ],

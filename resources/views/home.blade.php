@@ -23,7 +23,7 @@
 			  </div>
 			  <div class="col mb-4">
 			    <div class="card text-white bg-info  mb-3" style="max-width: 18rem;">
-				  <div class="card-header">PRODUCTOS</div>
+				  <div class="card-header"><a href="/product/list" style="color: white;"> PRODUCTOS</a></div>
 				  <div class="card-body">
 				   
 				  </div>
